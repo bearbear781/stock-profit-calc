@@ -1,292 +1,317 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>马股交易盈利计算器</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .calculator {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9f7ef;
-            border-radius: 4px;
-            display: none;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .highlight {
-            font-weight: bold;
-            color: #2e7d32;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>马股盈利计算器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .calculator {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #e9f7ef;
+      border-radius: 4px;
+    }
+    .highlight {
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 15px;
+    }
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      background-color: #f1f1f1;
+      border: none;
+      margin-right: 5px;
+      border-radius: 4px 4px 0 0;
+    }
+    .tab.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <h1>马股交易盈利计算器</h1>
-    
-    <div class="calculator">
-        <h2>输入交易详情</h2>
-        <div class="form-group">
-            <label for="stockType">股票类型:</label>
-            <select id="stockType">
-                <option value="stock">正股/借贷股票</option>
-                <option value="etf">交易所买卖基金(ETF)</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="buyPrice">买入价格 (RM):</label>
-            <input type="number" id="buyPrice" step="0.01" min="0">
-        </div>
-        <div class="form-group">
-            <label for="shares">股数:</label>
-            <input type="number" id="shares" min="1">
-        </div>
-        
-        <h2>计算选项</h2>
-        <div class="form-group">
-            <label>
-                <input type="radio" name="calcType" value="breakEven" checked> 计算盈亏平衡卖出价
-            </label>
-        </div>
-        <div class="form-group">
-            <label>
-                <input type="radio" name="calcType" value="targetProfit"> 计算目标盈利卖出价
-            </label>
-            <input type="number" id="targetProfit" step="0.01" min="0" placeholder="目标盈利金额 (RM)" disabled>
-        </div>
-        
-        <button onclick="calculate()">计算</button>
-        
-        <div id="result" class="result"></div>
+  <h1>马股盈利计算器</h1>
+  
+  <div class="calculator">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('target')">计算目标卖出价</button>
+      <button class="tab" onclick="switchTab('profit')">计算卖出盈利</button>
     </div>
     
-    <h2>费用说明</h2>
-    <table>
-        <tr>
-            <th>费用类型</th>
-            <th>正股/借贷股票</th>
-            <th>交易所买卖基金(ETF)</th>
-        </tr>
-        <tr>
-            <td>佣金</td>
-            <td>0.03% * 交易金额</td>
-            <td>0.03% * 交易金额</td>
-        </tr>
-        <tr>
-            <td>平台使用费</td>
-            <td>每笔订单RM3</td>
-            <td>每笔订单RM3</td>
-        </tr>
-        <tr>
-            <td>清算费</td>
-            <td>0.03% * 交易金额(最高RM1,000)</td>
-            <td>0.03% * 交易金额(最高RM1,000)</td>
-        </tr>
-        <tr>
-            <td>印花税</td>
-            <td>每RM1,000(或一部分)的交易金额,印花税为RM1.00(最高RM1,000)</td>
-            <td>0</td>
-        </tr>
-        <tr>
-            <td>消费税</td>
-            <td>0</td>
-            <td>0</td>
-        </tr>
-    </table>
+    <div id="target" class="tab-content active">
+      <div class="form-group">
+        <label for="buyPrice">购入价格 (RM):</label>
+        <input type="number" id="buyPrice" step="0.001" value="3.010">
+      </div>
+      <div class="form-group">
+        <label for="quantity">股数:</label>
+        <input type="number" id="quantity" value="19000">
+      </div>
+      <div class="form-group">
+        <label for="targetProfit">目标净盈利 (RM):</label>
+        <input type="number" id="targetProfit" value="1000">
+      </div>
+      <button onclick="calculateTargetPrice()">计算目标卖出价</button>
+      <div id="targetResult" class="result" style="display:none;"></div>
+    </div>
+    
+    <div id="profit" class="tab-content">
+      <div class="form-group">
+        <label for="buyPrice2">购入价格 (RM):</label>
+        <input type="number" id="buyPrice2" step="0.001" value="3.010">
+      </div>
+      <div class="form-group">
+        <label for="quantity2">股数:</label>
+        <input type="number" id="quantity2" value="19000">
+      </div>
+      <div class="form-group">
+        <label for="sellPrice">卖出价格 (RM):</label>
+        <input type="number" id="sellPrice" step="0.001" value="3.100">
+      </div>
+      <button onclick="calculateActualProfit()">计算卖出盈利</button>
+      <div id="profitResult" class="result" style="display:none;"></div>
+    </div>
+  </div>
+  
+  <h2>费用说明</h2>
+  <table>
+    <tr>
+      <th>费用类型</th>
+      <th>正股/借贷股票</th>
+      <th>交易所买卖基金(ETF)</th>
+    </tr>
+    <tr>
+      <td>佣金</td>
+      <td>0.03% * 交易金额</td>
+      <td>0.03% * 交易金额</td>
+    </tr>
+    <tr>
+      <td>平台使用费</td>
+      <td>每笔订单RM3</td>
+      <td>每笔订单RM3</td>
+    </tr>
+    <tr>
+      <td>清算费</td>
+      <td>0.03% * 交易金额(最高RM1,000)</td>
+      <td>0.03% * 交易金额(最高RM1,000)</td>
+    </tr>
+    <tr>
+      <td>印花税</td>
+      <td>每RM1,000(或一部分)的交易金额,印花税为RM1.00(最高RM1,000)</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>消费税</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </table>
 
-    <script>
-        function calculate() {
-            // 获取输入值
-            const stockType = document.getElementById('stockType').value;
-            const buyPrice = parseFloat(document.getElementById('buyPrice').value);
-            const shares = parseInt(document.getElementById('shares').value);
-            const calcType = document.querySelector('input[name="calcType"]:checked').value;
-            const targetProfit = calcType === 'targetProfit' ? parseFloat(document.getElementById('targetProfit').value) : 0;
-            
-            if (isNaN(buyPrice) || isNaN(shares) || (calcType === 'targetProfit' && isNaN(targetProfit))) {
-                alert('请输入有效的数值');
-                return;
-            }
-            
-            // 计算买入总金额
-            const buyAmount = buyPrice * shares;
-            
-            // 计算买入费用
-            const buyCommission = buyAmount * 0.0003;
-            const buyPlatformFee = 3;
-            const buyClearingFee = Math.min(buyAmount * 0.0003, 1000);
-            const buyStampDuty = stockType === 'stock' ? Math.ceil(buyAmount / 1000) : 0;
-            
-            const totalBuyFees = buyCommission + buyPlatformFee + buyClearingFee + buyStampDuty;
-            const totalBuyCost = buyAmount + totalBuyFees;
-            
-            if (calcType === 'breakEven') {
-                // 计算盈亏平衡点
-                // 我们需要解方程: sellAmount - sellFees = totalBuyCost
-                // 设卖出价为x，则:
-                // sellAmount = x * shares
-                // sellCommission = x * shares * 0.0003
-                // sellPlatformFee = 3
-                // sellClearingFee = Math.min(x * shares * 0.0003, 1000)
-                // sellStampDuty = stockType === 'stock' ? Math.ceil(x * shares / 1000) : 0
-                // totalSellFees = sellCommission + sellPlatformFee + sellClearingFee + sellStampDuty
-                // 所以方程是: x * shares - totalSellFees = totalBuyCost
-                
-                // 由于方程非线性，我们使用迭代法求解
-                let sellPrice = buyPrice;
-                let netProceeds = 0;
-                let iterations = 0;
-                const maxIterations = 1000;
-                const tolerance = 0.0001;
-                
-                do {
-                    const sellAmount = sellPrice * shares;
-                    const sellCommission = sellAmount * 0.0003;
-                    const sellPlatformFee = 3;
-                    const sellClearingFee = Math.min(sellAmount * 0.0003, 1000);
-                    const sellStampDuty = stockType === 'stock' ? Math.ceil(sellAmount / 1000) : 0;
-                    const totalSellFees = sellCommission + sellPlatformFee + sellClearingFee + sellStampDuty;
-                    
-                    netProceeds = sellAmount - totalSellFees;
-                    
-                    // 调整卖出价
-                    if (netProceeds < totalBuyCost) {
-                        sellPrice += 0.001;
-                    } else {
-                        sellPrice -= 0.001;
-                    }
-                    
-                    iterations++;
-                } while (Math.abs(netProceeds - totalBuyCost) > tolerance && iterations < maxIterations);
-                
-                // 显示结果
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = `
-                    <h3>盈亏平衡点计算结果</h3>
-                    <p><strong>买入总成本:</strong> RM${totalBuyCost.toFixed(2)} (股价: RM${buyPrice.toFixed(2)} × ${shares}股 + 费用: RM${totalBuyFees.toFixed(2)})</p>
-                    <p class="highlight">要达到盈亏平衡，您需要以至少 <strong>RM${sellPrice.toFixed(3)}</strong> 的价格卖出股票。</p>
-                    <p>此时卖出费用明细:</p>
-                    <ul>
-                        <li>佣金: RM${(sellPrice * shares * 0.0003).toFixed(2)}</li>
-                        <li>平台使用费: RM3.00</li>
-                        <li>清算费: RM${Math.min(sellPrice * shares * 0.0003, 1000).toFixed(2)}</li>
-                        ${stockType === 'stock' ? `<li>印花税: RM${Math.ceil(sellPrice * shares / 1000)}</li>` : ''}
-                    </ul>
-                `;
-                resultDiv.style.display = 'block';
-                
-            } else if (calcType === 'targetProfit') {
-                // 计算目标盈利卖出价
-                // 我们需要解方程: sellAmount - sellFees = totalBuyCost + targetProfit
-                // 使用与上面类似的迭代方法
-                
-                const targetAmount = totalBuyCost + targetProfit;
-                let sellPrice = buyPrice;
-                let netProceeds = 0;
-                let iterations = 0;
-                const maxIterations = 1000;
-                const tolerance = 0.0001;
-                
-                do {
-                    const sellAmount = sellPrice * shares;
-                    const sellCommission = sellAmount * 0.0003;
-                    const sellPlatformFee = 3;
-                    const sellClearingFee = Math.min(sellAmount * 0.0003, 1000);
-                    const sellStampDuty = stockType === 'stock' ? Math.ceil(sellAmount / 1000) : 0;
-                    const totalSellFees = sellCommission + sellPlatformFee + sellClearingFee + sellStampDuty;
-                    
-                    netProceeds = sellAmount - totalSellFees;
-                    
-                    // 调整卖出价
-                    if (netProceeds < targetAmount) {
-                        sellPrice += 0.001;
-                    } else {
-                        sellPrice -= 0.001;
-                    }
-                    
-                    iterations++;
-                } while (Math.abs(netProceeds - targetAmount) > tolerance && iterations < maxIterations);
-                
-                // 显示结果
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = `
-                    <h3>目标盈利计算结果</h3>
-                    <p><strong>买入总成本:</strong> RM${totalBuyCost.toFixed(2)} (股价: RM${buyPrice.toFixed(2)} × ${shares}股 + 费用: RM${totalBuyFees.toFixed(2)})</p>
-                    <p><strong>目标盈利:</strong> RM${targetProfit.toFixed(2)}</p>
-                    <p class="highlight">要实现目标盈利，您需要以至少 <strong>RM${sellPrice.toFixed(3)}</strong> 的价格卖出股票。</p>
-                    <p>此时卖出费用明细:</p>
-                    <ul>
-                        <li>佣金: RM${(sellPrice * shares * 0.0003).toFixed(2)}</li>
-                        <li>平台使用费: RM3.00</li>
-                        <li>清算费: RM${Math.min(sellPrice * shares * 0.0003, 1000).toFixed(2)}</li>
-                        ${stockType === 'stock' ? `<li>印花税: RM${Math.ceil(sellPrice * shares / 1000)}</li>` : ''}
-                    </ul>
-                    <p>预计净盈利: RM${(netProceeds - totalBuyCost).toFixed(2)}</p>
-                `;
-                resultDiv.style.display = 'block';
-            }
+  <script>
+    function switchTab(tabId) {
+      // 切换标签页
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+    
+    function calculateBuyFees(buyAmount, isStock) {
+      const commission = buyAmount * 0.0003;
+      const platformFee = 3;
+      const clearingFee = Math.min(buyAmount * 0.0003, 1000);
+      const stampDuty = isStock ? Math.ceil(buyAmount / 1000) : 0;
+      
+      return {
+        commission,
+        platformFee,
+        clearingFee,
+        stampDuty,
+        total: commission + platformFee + clearingFee + stampDuty
+      };
+    }
+    
+    function calculateSellFees(sellAmount, isStock) {
+      const commission = sellAmount * 0.0003;
+      const platformFee = 3;
+      const clearingFee = Math.min(sellAmount * 0.0003, 1000);
+      const stampDuty = isStock ? Math.ceil(sellAmount / 1000) : 0;
+      
+      return {
+        commission,
+        platformFee,
+        clearingFee,
+        stampDuty,
+        total: commission + platformFee + clearingFee + stampDuty
+      };
+    }
+    
+    function calculateTargetPrice() {
+      const buyPrice = parseFloat(document.getElementById('buyPrice').value);
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const targetProfit = parseFloat(document.getElementById('targetProfit').value);
+      const isStock = true; // 假设都是正股
+      
+      if (isNaN(buyPrice) || isNaN(quantity) || isNaN(targetProfit) || buyPrice <= 0 || quantity <= 0) {
+        alert("请输入有效的数值（价格和股数必须大于0）");
+        return;
+      }
+      
+      const buyAmount = buyPrice * quantity;
+      const buyFees = calculateBuyFees(buyAmount, isStock);
+      const totalCost = buyAmount + buyFees.total;
+      
+      // 使用迭代法计算所需的卖出价
+      let sellPrice = buyPrice;
+      let netProceeds = 0;
+      let iterations = 0;
+      const maxIterations = 1000;
+      const tolerance = 0.0001;
+      
+      do {
+        const sellAmount = sellPrice * quantity;
+        const sellFees = calculateSellFees(sellAmount, isStock);
+        netProceeds = sellAmount - sellFees.total;
+        
+        if (netProceeds < totalCost + targetProfit) {
+          sellPrice += 0.001;
+        } else {
+          sellPrice -= 0.001;
         }
         
-        // 启用/禁用目标盈利输入框
-        document.querySelectorAll('input[name="calcType"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.getElementById('targetProfit').disabled = this.value !== 'targetProfit';
-            });
-        });
-    </script>
+        iterations++;
+      } while (Math.abs(netProceeds - (totalCost + targetProfit)) > tolerance && iterations < maxIterations);
+      
+      // 计算最终费用
+      const finalSellAmount = sellPrice * quantity;
+      const finalSellFees = calculateSellFees(finalSellAmount, isStock);
+      const actualProfit = netProceeds - totalCost;
+      
+      const resultHTML = `
+        <h3>计算结果</h3>
+        <p>想要净赚 <span class="highlight">RM${targetProfit.toFixed(2)}</span>，你需要以 <span class="highlight">RM${sellPrice.toFixed(3)}</span> 或以上卖出</p>
+        <p><strong>费用明细：</strong></p>
+        <p>买入总成本: RM${buyAmount.toFixed(2)} (股价) + RM${buyFees.total.toFixed(2)} (费用) = RM${totalCost.toFixed(2)}</p>
+        <p>卖出费用: 佣金 RM${finalSellFees.commission.toFixed(2)}, 平台费 RM${finalSellFees.platformFee.toFixed(2)}, 
+        清算费 RM${finalSellFees.clearingFee.toFixed(2)}, 印花税 RM${finalSellFees.stampDuty.toFixed(2)}</p>
+        <p>总卖出费用: RM${finalSellFees.total.toFixed(2)}</p>
+        <p>预计净盈利: <span class="highlight">RM${actualProfit.toFixed(2)}</span></p>
+      `;
+      
+      document.getElementById('targetResult').innerHTML = resultHTML;
+      document.getElementById('targetResult').style.display = 'block';
+    }
+    
+    function calculateActualProfit() {
+      const buyPrice = parseFloat(document.getElementById('buyPrice2').value);
+      const quantity = parseInt(document.getElementById('quantity2').value);
+      const sellPrice = parseFloat(document.getElementById('sellPrice').value);
+      const isStock = true; // 假设都是正股
+      
+      if (isNaN(buyPrice) || isNaN(quantity) || isNaN(sellPrice) || buyPrice <= 0 || quantity <= 0 || sellPrice <= 0) {
+        alert("请输入有效的数值（价格和股数必须大于0）");
+        return;
+      }
+      
+      const buyAmount = buyPrice * quantity;
+      const buyFees = calculateBuyFees(buyAmount, isStock);
+      const totalCost = buyAmount + buyFees.total;
+      
+      const sellAmount = sellPrice * quantity;
+      const sellFees = calculateSellFees(sellAmount, isStock);
+      const netProceeds = sellAmount - sellFees.total;
+      
+      const profit = netProceeds - totalCost;
+      
+      const resultHTML = `
+        <h3>计算结果</h3>
+        <p>以 <span class="highlight">RM${sellPrice.toFixed(3)}</span> 卖出 ${quantity} 股后的盈利情况：</p>
+        <p>预计净盈利: <span class="highlight">RM${profit.toFixed(2)}</span></p>
+        <p><strong>费用明细：</strong></p>
+        <p>买入总成本: RM${buyAmount.toFixed(2)} (股价) + RM${buyFees.total.toFixed(2)} (费用) = RM${totalCost.toFixed(2)}</p>
+        <p>卖出金额: RM${sellAmount.toFixed(2)} - RM${sellFees.total.toFixed(2)} (费用) = RM${netProceeds.toFixed(2)}</p>
+        <p>买入费用: 佣金 RM${buyFees.commission.toFixed(2)}, 平台费 RM${buyFees.platformFee.toFixed(2)}, 
+        清算费 RM${buyFees.clearingFee.toFixed(2)}, 印花税 RM${buyFees.stampDuty.toFixed(2)}</p>
+        <p>卖出费用: 佣金 RM${sellFees.commission.toFixed(2)}, 平台费 RM${sellFees.platformFee.toFixed(2)}, 
+        清算费 RM${sellFees.clearingFee.toFixed(2)}, 印花税 RM${sellFees.stampDuty.toFixed(2)}</p>
+      `;
+      
+      document.getElementById('profitResult').innerHTML = resultHTML;
+      document.getElementById('profitResult').style.display = 'block';
+    }
+  </script>
 </body>
 </html>
