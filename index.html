@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>马股盈利计算器</title>
+  <title>股票交易盈利计算器</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 20px;
       background-color: #f5f5f5;
@@ -60,6 +60,9 @@
       font-weight: bold;
       color: #2e7d32;
     }
+    .negative {
+      color: #d32f2f;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -76,6 +79,7 @@
     .tabs {
       display: flex;
       margin-bottom: 15px;
+      flex-wrap: wrap;
     }
     .tab {
       padding: 10px 15px;
@@ -83,6 +87,7 @@
       background-color: #f1f1f1;
       border: none;
       margin-right: 5px;
+      margin-bottom: 5px;
       border-radius: 4px 4px 0 0;
     }
     .tab.active {
@@ -95,101 +100,334 @@
     .tab-content.active {
       display: block;
     }
+    .fee-details {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .market-tabs {
+      margin-bottom: 15px;
+    }
+    .market-tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #e0e0e0;
+      border: none;
+      margin-right: 5px;
+      border-radius: 4px;
+    }
+    .market-tab.active {
+      background-color: #2196F3;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <h1>马股盈利计算器</h1>
+  <h1>股票交易盈利计算器</h1>
   
-<div class="calculator">
+  <div class="market-tabs">
+    <button class="market-tab active" onclick="switchMarket('my')">马股</button>
+    <button class="market-tab" onclick="switchMarket('us')">美股</button>
+  </div>
+  
+  <!-- 马股计算器 -->
+  <div id="my-calculator" class="calculator">
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('target')">计算目标卖出价</button>
-      <button class="tab" onclick="switchTab('profit')">计算卖出盈利</button>
+      <button class="tab active" onclick="switchMyTab('target')">计算目标卖出价</button>
+      <button class="tab" onclick="switchMyTab('profit')">计算卖出盈利</button>
     </div>
     
-    <div id="target" class="tab-content active">
+    <div id="my-target" class="tab-content active">
       <div class="form-group">
-        <label for="buyPrice">购入价格 (RM):</label>
-        <input type="number" id="buyPrice" step="0.001" placeholder="输入购入价格">
+        <label for="my-stockType">股票类型:</label>
+        <select id="my-stockType">
+          <option value="stock">正股/借贷股票</option>
+          <option value="etf">交易所买卖基金(ETF)</option>
+        </select>
       </div>
       <div class="form-group">
-        <label for="quantity">股数:</label>
-        <input type="number" id="quantity" placeholder="输入股数">
+        <label for="my-buyPrice">购入价格 (RM):</label>
+        <input type="number" id="my-buyPrice" step="0.001" placeholder="输入购入价格">
       </div>
       <div class="form-group">
-        <label for="targetProfit">目标净盈利 (RM):</label>
-        <input type="number" id="targetProfit" placeholder="输入目标盈利">
+        <label for="my-quantity">股数:</label>
+        <input type="number" id="my-quantity" placeholder="输入股数">
       </div>
-      <button onclick="calculateTargetPrice()">计算目标卖出价</button>
-      <div id="targetResult" class="result" style="display:none;"></div>
+      <div class="form-group">
+        <label for="my-targetProfit">目标净盈利 (RM):</label>
+        <input type="number" id="my-targetProfit" placeholder="输入目标盈利">
+      </div>
+      <button onclick="calculateMyTargetPrice()">计算目标卖出价</button>
+      <div id="my-targetResult" class="result" style="display:none;"></div>
     </div>
     
-    <div id="profit" class="tab-content">
+    <div id="my-profit" class="tab-content">
       <div class="form-group">
-        <label for="buyPrice2">购入价格 (RM):</label>
-        <input type="number" id="buyPrice2" step="0.001" placeholder="输入购入价格">
+        <label for="my-stockType2">股票类型:</label>
+        <select id="my-stockType2">
+          <option value="stock">正股/借贷股票</option>
+          <option value="etf">交易所买卖基金(ETF)</option>
+        </select>
       </div>
       <div class="form-group">
-        <label for="quantity2">股数:</label>
-        <input type="number" id="quantity2" placeholder="输入股数">
+        <label for="my-buyPrice2">购入价格 (RM):</label>
+        <input type="number" id="my-buyPrice2" step="0.001" placeholder="输入购入价格">
       </div>
       <div class="form-group">
-        <label for="sellPrice">卖出价格 (RM):</label>
-        <input type="number" id="sellPrice" step="0.001" placeholder="输入卖出价格">
+        <label for="my-quantity2">股数:</label>
+        <input type="number" id="my-quantity2" placeholder="输入股数">
       </div>
-      <button onclick="calculateActualProfit()">计算卖出盈利</button>
-      <div id="profitResult" class="result" style="display:none;"></div>
+      <div class="form-group">
+        <label for="my-sellPrice">卖出价格 (RM):</label>
+        <input type="number" id="my-sellPrice" step="0.001" placeholder="输入卖出价格">
+      </div>
+      <button onclick="calculateMyActualProfit()">计算卖出盈利</button>
+      <div id="my-profitResult" class="result" style="display:none;"></div>
     </div>
   </div>
   
+  <!-- 美股计算器 -->
+  <div id="us-calculator" class="calculator" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" onclick="switchUsTab('stock')">美股正股/ETF</button>
+      <button class="tab" onclick="switchUsTab('option')">美股期权</button>
+    </div>
+    
+    <div id="us-stock" class="tab-content active">
+      <div class="form-group">
+        <label for="us-securityType">证券类型:</label>
+        <select id="us-securityType">
+          <option value="stock">正股</option>
+          <option value="etf">ETF/REIT/权证</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="us-buyPrice">买入价格 ($):</label>
+        <input type="number" id="us-buyPrice" step="0.0001" placeholder="输入买入价格">
+      </div>
+      <div class="form-group">
+        <label for="us-sellPrice">卖出价格 ($):</label>
+        <input type="number" id="us-sellPrice" step="0.0001" placeholder="输入卖出价格">
+      </div>
+      <div class="form-group">
+        <label for="us-stockQuantity">股数:</label>
+        <input type="number" id="us-stockQuantity" placeholder="输入股数">
+      </div>
+      <div class="form-group">
+        <label for="us-stockType">股票类型:</label>
+        <select id="us-stockType">
+          <option value="nms">NMS股票</option>
+          <option value="otc">OTC股票</option>
+        </select>
+      </div>
+      <button onclick="calculateUsStockProfit()">计算完整盈亏</button>
+      <div id="us-stockResult" class="result" style="display:none;"></div>
+    </div>
+    
+    <div id="us-option" class="tab-content">
+      <div class="form-group">
+        <label for="us-optionType">期权类型:</label>
+        <select id="us-optionType">
+          <option value="equity">股票期权</option>
+          <option value="index">指数期权</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="us-buyPremium">买入权利金 ($):</label>
+        <input type="number" id="us-buyPremium" step="0.0001" placeholder="输入买入权利金">
+      </div>
+      <div class="form-group">
+        <label for="us-sellPremium">卖出权利金 ($):</label>
+        <input type="number" id="us-sellPremium" step="0.0001" placeholder="输入卖出权利金">
+      </div>
+      <div class="form-group">
+        <label for="us-contracts">合约数量:</label>
+        <input type="number" id="us-contracts" placeholder="输入合约数量">
+      </div>
+      <button onclick="calculateUsOptionProfit()">计算期权盈亏</button>
+      <div id="us-optionResult" class="result" style="display:none;"></div>
+    </div>
+  </div>
+  
+  <!-- 费用说明 -->
   <h2>费用说明</h2>
-  <table>
-    <tr>
-      <th>费用类型</th>
-      <th>正股/借贷股票</th>
-      <th>交易所买卖基金(ETF)</th>
-    </tr>
-    <tr>
-      <td>佣金</td>
-      <td>0.03% * 交易金额</td>
-      <td>0.03% * 交易金额</td>
-    </tr>
-    <tr>
-      <td>平台使用费</td>
-      <td>每笔订单RM3</td>
-      <td>每笔订单RM3</td>
-    </tr>
-    <tr>
-      <td>清算费</td>
-      <td>0.03% * 交易金额(最高RM1,000)</td>
-      <td>0.03% * 交易金额(最高RM1,000)</td>
-    </tr>
-    <tr>
-      <td>印花税</td>
-      <td>每RM1,000(或一部分)的交易金额,印花税为RM1.00(最高RM1,000)</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>消费税</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-  </table>
+  <div id="my-fees">
+    <h3>马股费用</h3>
+    <table>
+      <tr>
+        <th>费用类型</th>
+        <th>正股/借贷股票</th>
+        <th>交易所买卖基金(ETF)</th>
+      </tr>
+      <tr>
+        <td>佣金</td>
+        <td>0.03% * 交易金额</td>
+        <td>0.03% * 交易金额</td>
+      </tr>
+      <tr>
+        <td>平台使用费</td>
+        <td>每笔订单RM3</td>
+        <td>每笔订单RM3</td>
+      </tr>
+      <tr>
+        <td>清算费</td>
+        <td>0.03% * 交易金额(最高RM1,000)</td>
+        <td>0.03% * 交易金额(最高RM1,000)</td>
+      </tr>
+      <tr>
+        <td>印花税</td>
+        <td>每RM1,000(或一部分)的交易金额,印花税为RM1.00(最高RM1,000)</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>消费税</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+    </table>
+  </div>
+  
+  <div id="us-fees" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" onclick="switchUsFeeTab('stockFee')">正股/ETF费用</button>
+      <button class="tab" onclick="switchUsFeeTab('optionFee')">期权费用</button>
+    </div>
+    
+    <div id="us-stockFee" class="tab-content active">
+      <table>
+        <tr>
+          <th>费用类型</th>
+          <th>正股</th>
+          <th>ETF/REIT/权证</th>
+        </tr>
+        <tr>
+          <td>佣金</td>
+          <td>0.03% * 交易金额</td>
+          <td>0.03% * 交易金额</td>
+        </tr>
+        <tr>
+          <td>平台使用费</td>
+          <td>每笔订单$0.99</td>
+          <td>每笔订单$0.99</td>
+        </tr>
+        <tr>
+          <td>交收费</td>
+          <td>$0.003/股,最高单笔成交金额*1%</td>
+          <td>$0.003/股,最高单笔成交金额*1%</td>
+        </tr>
+        <tr>
+          <td>交易活动费(仅卖出)</td>
+          <td>$0.000166/股,最低$0.01,最高$8.30</td>
+          <td>$0.000166/股,最低$0.01,最高$8.30</td>
+        </tr>
+        <tr>
+          <td>综合审计跟踪监管费</td>
+          <td>NMS股票：$0.000046/股<br>OTC股票：$0.0000046/股</td>
+          <td>NMS股票：$0.000046/股<br>OTC股票：$0.0000046/股</td>
+        </tr>
+      </table>
+    </div>
+    
+    <div id="us-optionFee" class="tab-content">
+      <table>
+        <tr>
+          <th>费用类型</th>
+          <th>费用标准</th>
+        </tr>
+        <tr>
+          <td>佣金</td>
+          <td>权利金>0.1美元: $0.2/张<br>权利金≤0.1美元: $0/张</td>
+        </tr>
+        <tr>
+          <td>平台使用费</td>
+          <td>每张合约$0.45，每笔订单最低$0.99</td>
+        </tr>
+        <tr>
+          <td>交易活动费(仅卖出)</td>
+          <td>$0.00279/张,最低$0.01</td>
+        </tr>
+        <tr>
+          <td>期权监管费</td>
+          <td>$0.015/张</td>
+        </tr>
+        <tr>
+          <td>期权清算费</td>
+          <td>$0.02/张,每次成交最高$55</td>
+        </tr>
+        <tr>
+          <td>期权交收费</td>
+          <td>$0.18/张</td>
+        </tr>
+        <tr>
+          <td>综合审计跟踪监管费</td>
+          <td>$0.0046/张</td>
+        </tr>
+      </table>
+    </div>
+  </div>
 
   <script>
-    function switchTab(tabId) {
-      // 切换标签页
-      document.querySelectorAll('.tab').forEach(tab => {
+    // 切换市场
+    function switchMarket(market) {
+      document.querySelectorAll('.market-tab').forEach(tab => {
         tab.classList.remove('active');
       });
-      document.querySelectorAll('.tab-content').forEach(content => {
+      document.querySelector(`.market-tab[onclick="switchMarket('${market}')"]`).classList.add('active');
+      
+      if (market === 'my') {
+        document.getElementById('my-calculator').style.display = 'block';
+        document.getElementById('us-calculator').style.display = 'none';
+        document.getElementById('my-fees').style.display = 'block';
+        document.getElementById('us-fees').style.display = 'none';
+      } else {
+        document.getElementById('my-calculator').style.display = 'none';
+        document.getElementById('us-calculator').style.display = 'block';
+        document.getElementById('my-fees').style.display = 'none';
+        document.getElementById('us-fees').style.display = 'block';
+      }
+    }
+    
+    // 马股标签页切换
+    function switchMyTab(tabId) {
+      document.querySelectorAll('#my-calculator .tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('#my-calculator .tab-content').forEach(content => {
         content.classList.remove('active');
       });
       
-      document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+      document.querySelector(`#my-calculator .tab[onclick="switchMyTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(`my-${tabId}`).classList.add('active');
     }
     
-    function calculateBuyFees(buyAmount, isStock) {
+    // 美股标签页切换
+    function switchUsTab(tabId) {
+      document.querySelectorAll('#us-calculator .tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('#us-calculator .tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      document.querySelector(`#us-calculator .tab[onclick="switchUsTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(`us-${tabId}`).classList.add('active');
+    }
+    
+    // 美股费用说明标签页切换
+    function switchUsFeeTab(tabId) {
+      document.querySelectorAll('#us-fees .tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('#us-fees .tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      document.querySelector(`#us-fees .tab[onclick="switchUsFeeTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(`us-${tabId}`).classList.add('active');
+    }
+    
+    // 马股费用计算函数
+    function calculateMyBuyFees(buyAmount, isStock) {
       const commission = buyAmount * 0.0003;
       const platformFee = 3;
       const clearingFee = Math.min(buyAmount * 0.0003, 1000);
@@ -204,7 +442,7 @@
       };
     }
     
-    function calculateSellFees(sellAmount, isStock) {
+    function calculateMySellFees(sellAmount, isStock) {
       const commission = sellAmount * 0.0003;
       const platformFee = 3;
       const clearingFee = Math.min(sellAmount * 0.0003, 1000);
@@ -219,11 +457,12 @@
       };
     }
     
-    function calculateTargetPrice() {
-      const buyPrice = parseFloat(document.getElementById('buyPrice').value);
-      const quantity = parseInt(document.getElementById('quantity').value);
-      const targetProfit = parseFloat(document.getElementById('targetProfit').value);
-      const isStock = true; // 假设都是正股
+    // 马股计算目标卖出价
+    function calculateMyTargetPrice() {
+      const isStock = document.getElementById('my-stockType').value === 'stock';
+      const buyPrice = parseFloat(document.getElementById('my-buyPrice').value);
+      const quantity = parseInt(document.getElementById('my-quantity').value);
+      const targetProfit = parseFloat(document.getElementById('my-targetProfit').value);
       
       if (isNaN(buyPrice) || isNaN(quantity) || isNaN(targetProfit) || buyPrice <= 0 || quantity <= 0) {
         alert("请输入有效的数值（价格和股数必须大于0）");
@@ -231,7 +470,7 @@
       }
       
       const buyAmount = buyPrice * quantity;
-      const buyFees = calculateBuyFees(buyAmount, isStock);
+      const buyFees = calculateMyBuyFees(buyAmount, isStock);
       const totalCost = buyAmount + buyFees.total;
       
       // 使用迭代法计算所需的卖出价
@@ -243,7 +482,7 @@
       
       do {
         const sellAmount = sellPrice * quantity;
-        const sellFees = calculateSellFees(sellAmount, isStock);
+        const sellFees = calculateMySellFees(sellAmount, isStock);
         netProceeds = sellAmount - sellFees.total;
         
         if (netProceeds < totalCost + targetProfit) {
@@ -257,7 +496,7 @@
       
       // 计算最终费用
       const finalSellAmount = sellPrice * quantity;
-      const finalSellFees = calculateSellFees(finalSellAmount, isStock);
+      const finalSellFees = calculateMySellFees(finalSellAmount, isStock);
       const actualProfit = netProceeds - totalCost;
       
       const resultHTML = `
@@ -266,20 +505,21 @@
         <p><strong>费用明细：</strong></p>
         <p>买入总成本: RM${buyAmount.toFixed(2)} (股价) + RM${buyFees.total.toFixed(2)} (费用) = RM${totalCost.toFixed(2)}</p>
         <p>卖出费用: 佣金 RM${finalSellFees.commission.toFixed(2)}, 平台费 RM${finalSellFees.platformFee.toFixed(2)}, 
-        清算费 RM${finalSellFees.clearingFee.toFixed(2)}, 印花税 RM${finalSellFees.stampDuty.toFixed(2)}</p>
+        清算费 RM${finalSellFees.clearingFee.toFixed(2)}${isStock ? `, 印花税 RM${finalSellFees.stampDuty.toFixed(2)}` : ''}</p>
         <p>总卖出费用: RM${finalSellFees.total.toFixed(2)}</p>
         <p>预计净盈利: <span class="highlight">RM${actualProfit.toFixed(2)}</span></p>
       `;
       
-      document.getElementById('targetResult').innerHTML = resultHTML;
-      document.getElementById('targetResult').style.display = 'block';
+      document.getElementById('my-targetResult').innerHTML = resultHTML;
+      document.getElementById('my-targetResult').style.display = 'block';
     }
     
-    function calculateActualProfit() {
-      const buyPrice = parseFloat(document.getElementById('buyPrice2').value);
-      const quantity = parseInt(document.getElementById('quantity2').value);
-      const sellPrice = parseFloat(document.getElementById('sellPrice').value);
-      const isStock = true; // 假设都是正股
+    // 马股计算实际盈利
+    function calculateMyActualProfit() {
+      const isStock = document.getElementById('my-stockType2').value === 'stock';
+      const buyPrice = parseFloat(document.getElementById('my-buyPrice2').value);
+      const quantity = parseInt(document.getElementById('my-quantity2').value);
+      const sellPrice = parseFloat(document.getElementById('my-sellPrice').value);
       
       if (isNaN(buyPrice) || isNaN(quantity) || isNaN(sellPrice) || buyPrice <= 0 || quantity <= 0 || sellPrice <= 0) {
         alert("请输入有效的数值（价格和股数必须大于0）");
@@ -287,32 +527,209 @@
       }
       
       const buyAmount = buyPrice * quantity;
-      const buyFees = calculateBuyFees(buyAmount, isStock);
+      const buyFees = calculateMyBuyFees(buyAmount, isStock);
       const totalCost = buyAmount + buyFees.total;
       
       const sellAmount = sellPrice * quantity;
-      const sellFees = calculateSellFees(sellAmount, isStock);
+      const sellFees = calculateMySellFees(sellAmount, isStock);
       const netProceeds = sellAmount - sellFees.total;
       
       const profit = netProceeds - totalCost;
+      const profitPercentage = (profit / totalCost) * 100;
       
       const resultHTML = `
         <h3>计算结果</h3>
         <p>以 <span class="highlight">RM${sellPrice.toFixed(3)}</span> 卖出 ${quantity} 股后的盈利情况：</p>
-        <p>预计净盈利: <span class="highlight">RM${profit.toFixed(2)}</span></p>
         <p><strong>费用明细：</strong></p>
         <p>买入总成本: RM${buyAmount.toFixed(2)} (股价) + RM${buyFees.total.toFixed(2)} (费用) = RM${totalCost.toFixed(2)}</p>
         <p>卖出金额: RM${sellAmount.toFixed(2)} - RM${sellFees.total.toFixed(2)} (费用) = RM${netProceeds.toFixed(2)}</p>
         <p>买入费用: 佣金 RM${buyFees.commission.toFixed(2)}, 平台费 RM${buyFees.platformFee.toFixed(2)}, 
-        清算费 RM${buyFees.clearingFee.toFixed(2)}, 印花税 RM${buyFees.stampDuty.toFixed(2)}</p>
+        清算费 RM${buyFees.clearingFee.toFixed(2)}${isStock ? `, 印花税 RM${buyFees.stampDuty.toFixed(2)}` : ''}</p>
         <p>卖出费用: 佣金 RM${sellFees.commission.toFixed(2)}, 平台费 RM${sellFees.platformFee.toFixed(2)}, 
-        清算费 RM${sellFees.clearingFee.toFixed(2)}, 印花税 RM${sellFees.stampDuty.toFixed(2)}</p>
+        清算费 RM${sellFees.clearingFee.toFixed(2)}${isStock ? `, 印花税 RM${sellFees.stampDuty.toFixed(2)}` : ''}</p>
+        <p class="${profit >= 0 ? 'highlight' : 'negative'}">
+          净${profit >= 0 ? '盈利' : '亏损'}: RM${Math.abs(profit).toFixed(2)} (${profitPercentage.toFixed(2)}%)
+        </p>
       `;
       
-      document.getElementById('profitResult').innerHTML = resultHTML;
-      document.getElementById('profitResult').style.display = 'block';
+      document.getElementById('my-profitResult').innerHTML = resultHTML;
+      document.getElementById('my-profitResult').style.display = 'block';
+    }
+    
+    // 美股费用计算函数
+    function calculateUsStockFees(amount, quantity, stockType, isSell) {
+      const securityType = document.getElementById('us-securityType').value;
+      
+      // 计算费用
+      const commission = amount * 0.0003; // 0.03%
+      const platformFee = 0.99;
+      const exchangeFee = Math.min(0.003 * quantity, amount * 0.01);
+      const activityFee = isSell ? Math.max(0.01, Math.min(0.000166 * quantity, 8.30)) : 0;
+      const auditFee = stockType === 'nms' ? 0.000046 * quantity : 0.0000046 * quantity;
+      
+      return {
+        commission,
+        platformFee,
+        exchangeFee,
+        activityFee,
+        auditFee,
+        total: commission + platformFee + exchangeFee + activityFee + auditFee
+      };
+    }
+    
+    // 美股正股/ETF计算
+    function calculateUsStockProfit() {
+      const securityType = document.getElementById('us-securityType').value;
+      const buyPrice = parseFloat(document.getElementById('us-buyPrice').value);
+      const sellPrice = parseFloat(document.getElementById('us-sellPrice').value);
+      const quantity = parseInt(document.getElementById('us-stockQuantity').value);
+      const stockType = document.getElementById('us-stockType').value;
+      
+      if (isNaN(buyPrice) || isNaN(sellPrice) || isNaN(quantity) || quantity <= 0) {
+        alert("请输入有效的数值（股数必须大于0）");
+        return;
+      }
+      
+      const buyAmount = buyPrice * quantity;
+      const sellAmount = sellPrice * quantity;
+      
+      // 计算买入费用
+      const buyFees = calculateUsStockFees(buyAmount, quantity, stockType, false);
+      const totalBuyCost = buyAmount + buyFees.total;
+      
+      // 计算卖出费用
+      const sellFees = calculateUsStockFees(sellAmount, quantity, stockType, true);
+      const netProceeds = sellAmount - sellFees.total;
+      
+      // 计算盈亏
+      const profit = netProceeds - totalBuyCost;
+      const profitPercentage = (profit / totalBuyCost) * 100;
+      
+      const resultHTML = `
+        <h3>美股${securityType === 'stock' ? '正股' : 'ETF/REIT/权证'}交易盈亏</h3>
+        <p>买入金额: $${buyAmount.toFixed(2)} (${buyPrice.toFixed(4)} × ${quantity}股)</p>
+        <p>卖出金额: $${sellAmount.toFixed(2)} (${sellPrice.toFixed(4)} × ${quantity}股)</p>
+        
+        <p><strong>买入费用明细：</strong></p>
+        <ul>
+          <li>佣金: $${buyFees.commission.toFixed(2)} (0.03%)</li>
+          <li>平台使用费: $${buyFees.platformFee.toFixed(2)}</li>
+          <li>交收费: $${buyFees.exchangeFee.toFixed(2)}</li>
+          <li>综合审计跟踪监管费: $${buyFees.auditFee.toFixed(4)} (${stockType === 'nms' ? 'NMS股票' : 'OTC股票'})</li>
+        </ul>
+        <p>总买入费用: $${buyFees.total.toFixed(2)}</p>
+        <p>买入总成本: $${totalBuyCost.toFixed(2)}</p>
+        
+        <p><strong>卖出费用明细：</strong></p>
+        <ul>
+          <li>佣金: $${sellFees.commission.toFixed(2)} (0.03%)</li>
+          <li>平台使用费: $${sellFees.platformFee.toFixed(2)}</li>
+          <li>交收费: $${sellFees.exchangeFee.toFixed(2)}</li>
+          <li>交易活动费: $${sellFees.activityFee.toFixed(2)}</li>
+          <li>综合审计跟踪监管费: $${sellFees.auditFee.toFixed(4)} (${stockType === 'nms' ? 'NMS股票' : 'OTC股票'})</li>
+        </ul>
+        <p>总卖出费用: $${sellFees.total.toFixed(2)}</p>
+        <p>卖出净收入: $${netProceeds.toFixed(2)}</p>
+        
+        <p class="${profit >= 0 ? 'highlight' : 'negative'}">
+          净${profit >= 0 ? '盈利' : '亏损'}: $${Math.abs(profit).toFixed(2)} (${profitPercentage.toFixed(2)}%)
+        </p>
+      `;
+      
+      document.getElementById('us-stockResult').innerHTML = resultHTML;
+      document.getElementById('us-stockResult').style.display = 'block';
+    }
+    
+    // 美股期权费用计算
+    function calculateUsOptionFees(premium, contracts, isSell) {
+      const optionType = document.getElementById('us-optionType').value;
+      
+      // 计算费用
+      const commission = premium > 0.1 ? 0.2 * contracts : 0;
+      const platformFee = Math.max(0.45 * contracts, 0.99);
+      const activityFee = isSell ? Math.max(0.01, 0.00279 * contracts) : 0;
+      const regulatoryFee = 0.015 * contracts;
+      const clearingFee = Math.min(0.02 * contracts, 55);
+      const exchangeFee = 0.18 * contracts;
+      const auditFee = 0.0046 * contracts;
+      
+      return {
+        commission,
+        platformFee,
+        activityFee,
+        regulatoryFee,
+        clearingFee,
+        exchangeFee,
+        auditFee,
+        total: commission + platformFee + activityFee + regulatoryFee + clearingFee + exchangeFee + auditFee
+      };
+    }
+    
+    // 美股期权计算
+    function calculateUsOptionProfit() {
+      const optionType = document.getElementById('us-optionType').value;
+      const buyPremium = parseFloat(document.getElementById('us-buyPremium').value);
+      const sellPremium = parseFloat(document.getElementById('us-sellPremium').value);
+      const contracts = parseInt(document.getElementById('us-contracts').value);
+      
+      if (isNaN(buyPremium) || isNaN(sellPremium) || isNaN(contracts) || contracts <= 0) {
+        alert("请输入有效的数值（合约数量必须大于0）");
+        return;
+      }
+      
+      const buyAmount = buyPremium * 100 * contracts;
+      const sellAmount = sellPremium * 100 * contracts;
+      
+      // 计算买入费用
+      const buyFees = calculateUsOptionFees(buyPremium, contracts, false);
+      const totalBuyCost = buyAmount + buyFees.total;
+      
+      // 计算卖出费用
+      const sellFees = calculateUsOptionFees(sellPremium, contracts, true);
+      const netProceeds = sellAmount - sellFees.total;
+      
+      // 计算盈亏
+      const profit = netProceeds - totalBuyCost;
+      const profitPercentage = (profit / totalBuyCost) * 100;
+      
+      const resultHTML = `
+        <h3>美股${optionType === 'equity' ? '股票' : '指数'}期权交易盈亏</h3>
+        <p>买入权利金总额: $${buyAmount.toFixed(2)} (${buyPremium.toFixed(4)} × 100 × ${contracts}张)</p>
+        <p>卖出权利金总额: $${sellAmount.toFixed(2)} (${sellPremium.toFixed(4)} × 100 × ${contracts}张)</p>
+        
+        <p><strong>买入费用明细：</strong></p>
+        <ul>
+          <li>佣金: $${buyFees.commission.toFixed(2)}</li>
+          <li>平台使用费: $${buyFees.platformFee.toFixed(2)}</li>
+          <li>期权监管费: $${buyFees.regulatoryFee.toFixed(2)}</li>
+          <li>期权清算费: $${buyFees.clearingFee.toFixed(2)}</li>
+          <li>期权交收费: $${buyFees.exchangeFee.toFixed(2)}</li>
+          <li>综合审计跟踪监管费: $${buyFees.auditFee.toFixed(2)}</li>
+        </ul>
+        <p>总买入费用: $${buyFees.total.toFixed(2)}</p>
+        <p>买入总成本: $${totalBuyCost.toFixed(2)}</p>
+        
+        <p><strong>卖出费用明细：</strong></p>
+        <ul>
+          <li>佣金: $${sellFees.commission.toFixed(2)}</li>
+          <li>平台使用费: $${sellFees.platformFee.toFixed(2)}</li>
+          <li>交易活动费: $${sellFees.activityFee.toFixed(2)}</li>
+          <li>期权监管费: $${sellFees.regulatoryFee.toFixed(2)}</li>
+          <li>期权清算费: $${sellFees.clearingFee.toFixed(2)}</li>
+          <li>期权交收费: $${sellFees.exchangeFee.toFixed(2)}</li>
+          <li>综合审计跟踪监管费: $${sellFees.auditFee.toFixed(2)}</li>
+        </ul>
+        <p>总卖出费用: $${sellFees.total.toFixed(2)}</p>
+        <p>卖出净收入: $${netProceeds.toFixed(2)}</p>
+        
+        <p class="${profit >= 0 ? 'highlight' : 'negative'}">
+          净${profit >= 0 ? '盈利' : '亏损'}: $${Math.abs(profit).toFixed(2)} (${profitPercentage.toFixed(2)}%)
+        </p>
+      `;
+      
+      document.getElementById('us-optionResult').innerHTML = resultHTML;
+      document.getElementById('us-optionResult').style.display = 'block';
     }
   </script>
 </body>
 </html>
-
