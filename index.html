@@ -3,431 +3,205 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>股票交易盈利计算器 - Moomoo MY 最新标准</title>
+  <title>Moomoo MY 股票交易计算器 (2025最新版)</title>
   <style>
     :root {
       --primary: #1e88e5;
       --primary-hover: #1565c0;
-      --secondary: #43a047;
-      --secondary-hover: #2e7d32;
       --bg-light: #f8fafc;
       --text-main: #212121;
-      --text-muted: #757575;
       --card-bg: #ffffff;
       --border-color: #e0e0e0;
       --positive: #2e7d32;
       --negative: #c62828;
     }
-
     body {
-      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Segoe UI', Roboto, sans-serif;
       background-color: var(--bg-light);
       color: var(--text-main);
-      margin: 0;
-      padding: 1rem;
-      max-width: 960px;
-      margin-inline: auto;
+      margin: 0; padding: 1rem;
+      max-width: 900px; margin-inline: auto;
     }
-
-    h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 2rem;
+    h1 { text-align: center; color: var(--primary); }
+    .calculator {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
     }
-
-    .calculator, .fees-table {
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 0.65rem;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      font-size: 1rem;
-    }
-
-    button {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 1rem;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      justify-content: center;
-    }
-
+    .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
     .tab {
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      background-color: var(--bg-light);
-      color: var(--text-main);
-      font-weight: 500;
-      border: 1px solid var(--primary);
-      cursor: pointer;
-      transition: all 0.3s ease;
+      padding: 8px 16px; border-radius: 20px; border: 1px solid var(--primary);
+      background: none; cursor: pointer; font-weight: 600; color: var(--primary);
     }
-
-    .tab.active {
-      background-color: var(--primary);
-      color: white;
+    .tab.active { background: var(--primary); color: white; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input, select {
+      width: 100%; padding: 10px; border: 1px solid var(--border-color);
+      border-radius: 6px; box-sizing: border-box; font-size: 16px;
     }
-
-    .tab-content {
-      display: none;
+    button.calc-btn {
+      width: 100%; padding: 12px; background: var(--primary); color: white;
+      border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px;
     }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .market-tabs {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 2rem;
-      gap: 1rem;
-    }
-
-    .market-tab {
-      padding: 0.7rem 1.2rem;
-      border: 1px solid var(--primary);
-      border-radius: 30px;
-      background-color: transparent;
-      color: var(--primary);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .market-tab.active {
-      background-color: var(--primary);
-      color: white;
-    }
-
     .result {
-      margin-top: 2rem;
-      padding: 1.2rem;
-      background-color: #e8f5e9;
-      border-radius: 10px;
-      font-size: 1rem;
-      line-height: 1.6;
+      margin-top: 20px; padding: 15px; border-radius: 8px;
+      background: #f1f8ff; line-height: 1.8; display: none;
     }
-
-    .highlight {
-      color: var(--positive);
-      font-weight: bold;
-    }
-
-    .negative {
-      color: var(--negative);
-      font-weight: bold;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      font-size: 0.95rem;
-    }
-
-    th, td {
-      border: 1px solid var(--border-color);
-      padding: 0.75rem;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f1f8ff;
-    }
-
-    .note {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: 0.5rem;
-    }
-
-    @media (max-width: 600px) {
-      .market-tabs, .tabs {
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .market-tab, .tab {
-        width: 100%;
-        text-align: center;
-      }
-    }
+    .highlight { color: var(--positive); font-weight: bold; }
+    .fee-note { font-size: 0.85rem; color: #666; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+    th, td { border: 1px solid var(--border-color); padding: 8px; text-align: left; }
+    th { background: #f1f8ff; }
   </style>
 </head>
 <body>
-  <h1>股票交易盈利计算器</h1>
-  
-  <div class="market-tabs">
-    <button class="market-tab active" onclick="switchMarket('my')">马股 (Moomoo)</button>
-    <button class="market-tab" onclick="switchMarket('us')">美股</button>
-  </div>
-  
-  <div id="my-calculator" class="calculator">
-    <div class="tabs">
-      <button class="tab active" onclick="switchMyTab('target')">计算目标卖出价</button>
-      <button class="tab" onclick="switchMyTab('profit')">计算卖出盈利</button>
-    </div>
-    
-    <div id="my-target" class="tab-content active">
-      <div class="form-group">
-        <label for="my-stockType">股票类型:</label>
-        <select id="my-stockType">
-          <option value="stock">正股/认股权证/REITs</option>
-          <option value="etf">交易所买卖基金(ETF)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="my-buyPrice">购入价格 (RM):</label>
-        <input type="number" id="my-buyPrice" step="0.001" placeholder="输入购入价格">
-      </div>
-      <div class="form-group">
-        <label for="my-quantity">股数:</label>
-        <input type="number" id="my-quantity" placeholder="输入股数">
-      </div>
-      <div class="form-group">
-        <label for="my-targetProfit">目标净盈利 (RM):</label>
-        <input type="number" id="my-targetProfit" placeholder="输入目标盈利">
-      </div>
-      <button onclick="calculateMyTargetPrice()">计算目标卖出价</button>
-      <div id="my-targetResult" class="result" style="display:none;"></div>
-    </div>
-    
-    <div id="my-profit" class="tab-content">
-      <div class="form-group">
-        <label for="my-stockType2">股票类型:</label>
-        <select id="my-stockType2">
-          <option value="stock">正股/认股权证/REITs</option>
-          <option value="etf">交易所买卖基金(ETF)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="my-buyPrice2">购入价格 (RM):</label>
-        <input type="number" id="my-buyPrice2" step="0.001" placeholder="输入购入价格">
-      </div>
-      <div class="form-group">
-        <label for="my-quantity2">股数:</label>
-        <input type="number" id="my-quantity2" placeholder="输入股数">
-      </div>
-      <div class="form-group">
-        <label for="my-sellPrice">卖出价格 (RM):</label>
-        <input type="number" id="my-sellPrice" step="0.001" placeholder="输入卖出价格">
-      </div>
-      <button onclick="calculateMyActualProfit()">计算卖出盈利</button>
-      <div id="my-profitResult" class="result" style="display:none;"></div>
-    </div>
-  </div>
-  
-  <div id="us-calculator" class="calculator" style="display:none;">
-    <p style="text-align:center; color:gray;">美股计算逻辑暂未变动</p>
-    </div>
-  
-  <h2>最新费用说明 (Moomoo MY)</h2>
-  <div id="my-fees">
-    <h3>马股费用标准</h3>
-    <table>
-      <tr>
-        <th>费用类型</th>
-        <th>正股/认股权证/REITs</th>
-        <th>交易所买卖基金(ETF)</th>
-      </tr>
-      <tr>
-        <td>佣金</td>
-        <td>0.03% * 交易金额 (最低 RM3.00)</td>
-        <td>0.03% * 交易金额 (最低 RM3.00)</td>
-      </tr>
-      <tr>
-        <td>平台费</td>
-        <td>RM 0.00 (目前免费)</td>
-        <td>RM 0.00 (目前免费)</td>
-      </tr>
-      <tr>
-        <td>清算费 (Clearing Fee)</td>
-        <td>0.03% * 交易金额 (最高 RM1,000)</td>
-        <td>0.03% * 交易金额 (最高 RM1,000)</td>
-      </tr>
-      <tr>
-        <td>印花税 (Stamp Duty)</td>
-        <td>每 RM1,000 收 RM1.00 (最高 RM1,000)</td>
-        <td>豁免 (RM 0)</td>
-      </tr>
-    </table>
-    <p class="note">* 注：以上数据根据 Moomoo MY 官方收费标准更新。</p>
+
+<h1>股票交易盈利计算器</h1>
+
+<div class="calculator">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('target')">目标卖出价</button>
+    <button class="tab" onclick="switchTab('profit')">计算盈亏</button>
   </div>
 
-  <script>
-    // 切换市场
-    function switchMarket(market) {
-      document.querySelectorAll('.market-tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      const activeTab = document.querySelector(`.market-tab[onclick="switchMarket('${market}')"]`);
-      if(activeTab) activeTab.classList.add('active');
-      
-      if (market === 'my') {
-        document.getElementById('my-calculator').style.display = 'block';
-        document.getElementById('us-calculator').style.display = 'none';
-        document.getElementById('my-fees').style.display = 'block';
-      } else {
-        document.getElementById('my-calculator').style.display = 'none';
-        document.getElementById('us-calculator').style.display = 'block';
-        document.getElementById('my-fees').style.display = 'none';
-      }
+  <div id="target-form">
+    <div class="form-group">
+      <label>股票类型</label>
+      <select id="type">
+        <option value="stock">正股 (Bursa Shares)</option>
+        <option value="warrant">认股权证/REITs (Warrants/REITs)</option>
+        <option value="etf">交易所买卖基金 (ETF)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>买入价格 (RM)</label>
+      <input type="number" id="buyPrice" step="0.001" placeholder="例如: 1.550">
+    </div>
+    <div id="profit-only" style="display:none;" class="form-group">
+      <label>卖出价格 (RM)</label>
+      <input type="number" id="sellPrice" step="0.001">
+    </div>
+    <div class="form-group">
+      <label>股数 (Quantity)</label>
+      <input type="number" id="qty" placeholder="例如: 1000">
+    </div>
+    <div id="target-only" class="form-group">
+      <label>目标净盈利 (RM)</label>
+      <input type="number" id="targetProfit" placeholder="例如: 500">
+    </div>
+    <button class="calc-btn" onclick="performCalculation()">开始计算</button>
+  </div>
+
+  <div id="resultBox" class="result"></div>
+</div>
+
+<div class="calculator">
+  <h3>最新费率标准 (Moomoo MY)</h3>
+  <table>
+    <tr><th>项目</th><th>正股</th><th>Warrants/REITs</th><th>ETF</th></tr>
+    <tr><td>佣金</td><td colspan="3">0.03% (最低 RM 3.00)</td></tr>
+    <tr><td>平台费</td><td colspan="3">RM 0 (目前活动豁免)</td></tr>
+    <tr><td>清算费</td><td colspan="3">0.03% (最高 RM 1,000)</td></tr>
+    <tr><td>SST 服务税</td><td colspan="3"><strong>8%</strong> (施加于佣金/平台费/清算费)</td></tr>
+    <tr><td>印花税</td><td>每千收 RM1 (封顶1000)</td><td>每千收 RM1 (<strong>封顶200</strong>)</td><td><strong>豁免 (至2025年底)</strong></td></tr>
+  </table>
+</div>
+
+<script>
+  let currentMode = 'target';
+
+  function switchTab(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('target-only').style.display = (mode === 'target') ? 'block' : 'none';
+    document.getElementById('profit-only').style.display = (mode === 'profit') ? 'block' : 'none';
+    document.getElementById('resultBox').style.display = 'none';
+  }
+
+  function calculateFees(amount, type) {
+    // 1. 佣金 (0.03% 或最低 RM3)
+    let commission = Math.max(amount * 0.0003, 3.00);
+    // 2. 平台费 (目前 Moomoo MY 对马股免平台费)
+    let platformFee = 0;
+    // 3. 清算费 (0.03% 封顶 RM1000)
+    let clearingFee = Math.min(amount * 0.0003, 1000);
+    // 4. SST (8%) - 针对佣金+平台费+清算费
+    let sst = (commission + platformFee + clearingFee) * 0.08;
+    // 5. 印花税
+    let stampDuty = 0;
+    if (type === 'stock') {
+      stampDuty = Math.min(Math.ceil(amount / 1000), 1000);
+    } else if (type === 'warrant') {
+      stampDuty = Math.min(Math.ceil(amount / 1000), 200);
+    } else {
+      stampDuty = 0; // ETF 豁免
     }
-    
-    // 马股标签页切换
-    function switchMyTab(tabId) {
-      document.querySelectorAll('#my-calculator .tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.querySelectorAll('#my-calculator .tab-content').forEach(content => {
-        content.classList.remove('active');
-      });
-      
-      document.querySelector(`#my-calculator .tab[onclick="switchMyTab('${tabId}')"]`).classList.add('active');
-      document.getElementById(`my-${tabId}`).classList.add('active');
-    }
 
-    // --- 马股最新核心计算逻辑 ---
-    
-    function calculateMyFees(amount, isStock) {
-      // 1. 佣金: 0.03%, 最低 RM3
-      let commission = amount * 0.0003;
-      commission = Math.max(commission, 3.00); 
+    return {
+      commission, clearingFee, sst, stampDuty,
+      total: commission + platformFee + clearingFee + sst + stampDuty
+    };
+  }
 
-      // 2. 平台费: 目前 Moomoo MY 为 RM 0
-      const platformFee = 0;
+  function performCalculation() {
+    const type = document.getElementById('type').value;
+    const buyPrice = parseFloat(document.getElementById('buyPrice').value);
+    const qty = parseInt(document.getElementById('qty').value);
+    const resBox = document.getElementById('resultBox');
 
-      // 3. 清算费: 0.03%, 最高 RM1000
-      const clearingFee = Math.min(amount * 0.0003, 1000);
+    if (isNaN(buyPrice) || isNaN(qty)) return alert("请完整输入数据");
 
-      // 4. 印花税: 每1000收1块, 封顶1000 (ETF豁免)
-      const stampDuty = isStock ? Math.min(Math.ceil(amount / 1000), 1000) : 0;
-      
-      return {
-        commission,
-        platformFee,
-        clearingFee,
-        stampDuty,
-        total: commission + platformFee + clearingFee + stampDuty
-      };
-    }
-    
-    function calculateMyTargetPrice() {
-      const isStock = document.getElementById('my-stockType').value === 'stock';
-      const buyPrice = parseFloat(document.getElementById('my-buyPrice').value);
-      const quantity = parseInt(document.getElementById('my-quantity').value);
-      const targetProfit = parseFloat(document.getElementById('my-targetProfit').value);
-      
-      if (isNaN(buyPrice) || isNaN(quantity) || isNaN(targetProfit) || buyPrice <= 0 || quantity <= 0) {
-        alert("请输入有效的数值");
-        return;
+    const buyAmount = buyPrice * qty;
+    const buyFees = calculateFees(buyAmount, type);
+    const totalCost = buyAmount + buyFees.total;
+
+    let output = "";
+
+    if (currentMode === 'target') {
+      const targetProfit = parseFloat(document.getElementById('targetProfit').value) || 0;
+      // 简单迭代寻找目标价
+      let sPrice = buyPrice + 0.001;
+      let net = 0;
+      while (net < (totalCost + targetProfit)) {
+        let sAmount = sPrice * qty;
+        let sFees = calculateFees(sAmount, type);
+        net = sAmount - sFees.total;
+        sPrice += 0.001;
+        if (sPrice > buyPrice * 5) break; // 防止死循环
       }
       
-      const buyAmount = buyPrice * quantity;
-      const buyFees = calculateMyFees(buyAmount, isStock);
-      const totalCost = buyAmount + buyFees.total;
-      
-      // 迭代寻找目标价
-      let sellPrice = buyPrice + 0.001;
-      let netProceeds = 0;
-      let iterations = 0;
-      
-      while (iterations < 2000) {
-        const sellAmount = sellPrice * quantity;
-        const sellFees = calculateMyFees(sellAmount, isStock);
-        netProceeds = sellAmount - sellFees.total;
-        
-        if (netProceeds >= (totalCost + targetProfit)) break;
-        sellPrice += 0.001;
-        iterations++;
-      }
-      
-      const finalSellAmount = sellPrice * quantity;
-      const finalSellFees = calculateMyFees(finalSellAmount, isStock);
-      
-      const resultHTML = `
-        <h3>计算结果 (Moomoo 标准)</h3>
-        <p>目标净赚: <span class="highlight">RM${targetProfit.toFixed(2)}</span></p>
-        <p>建议卖出价: <span class="highlight">RM${sellPrice.toFixed(3)}</span></p>
-        <hr>
-        <p><strong>买入明细:</strong> 股价 RM${buyAmount.toFixed(2)} + 费用 RM${buyFees.total.toFixed(2)} = 总成本 RM${totalCost.toFixed(2)}</p>
-        <p><strong>卖出费用:</strong> 佣金 RM${finalSellFees.commission.toFixed(2)} (最低RM3), 清算费 RM${finalSellFees.clearingFee.toFixed(2)}${isStock ? `, 印花税 RM${finalSellFees.stampDuty.toFixed(2)}` : ''}</p>
-        <p><strong>最终净盈利:</strong> RM${(netProceeds - totalCost).toFixed(2)}</p>
+      const finalSellFees = calculateFees(sPrice * qty, type);
+      output = `
+        <strong>目标卖出价: <span class="highlight">RM ${sPrice.toFixed(3)}</span></strong><br>
+        买入总成本: RM ${totalCost.toFixed(2)} (含税费 RM ${buyFees.total.toFixed(2)})<br>
+        预计卖出费用: RM ${finalSellFees.total.toFixed(2)} (含 SST RM ${finalSellFees.sst.toFixed(2)})<br>
+        <span class="fee-note">* 已考虑 0.03% 佣金(最低RM3)、8% SST 及相应印花税上限。</span>
       `;
+    } else {
+      const sellPrice = parseFloat(document.getElementById('sellPrice').value);
+      if (isNaN(sellPrice)) return alert("请输入卖出价格");
       
-      document.getElementById('my-targetResult').innerHTML = resultHTML;
-      document.getElementById('my-targetResult').style.display = 'block';
-    }
-    
-    function calculateMyActualProfit() {
-      const isStock = document.getElementById('my-stockType2').value === 'stock';
-      const buyPrice = parseFloat(document.getElementById('my-buyPrice2').value);
-      const quantity = parseInt(document.getElementById('my-quantity2').value);
-      const sellPrice = parseFloat(document.getElementById('my-sellPrice').value);
-      
-      if (isNaN(buyPrice) || isNaN(quantity) || isNaN(sellPrice)) {
-        alert("请输入有效数值");
-        return;
-      }
-      
-      const buyAmount = buyPrice * quantity;
-      const buyFees = calculateMyFees(buyAmount, isStock);
-      const totalCost = buyAmount + buyFees.total;
-      
-      const sellAmount = sellPrice * quantity;
-      const sellFees = calculateMyFees(sellAmount, isStock);
+      const sellAmount = sellPrice * qty;
+      const sellFees = calculateFees(sellAmount, type);
       const netProceeds = sellAmount - sellFees.total;
-      
       const profit = netProceeds - totalCost;
-      const profitRate = (profit / totalCost) * 100;
-      
-      const resultHTML = `
-        <h3>盈亏分析 (Moomoo 标准)</h3>
-        <p>买入总成本: RM${totalCost.toFixed(2)}</p>
-        <p>卖出净收入: RM${netProceeds.toFixed(2)}</p>
-        <p class="${profit >= 0 ? 'highlight' : 'negative'}">
-          ${profit >= 0 ? '净盈利' : '净亏损'}: RM${Math.abs(profit).toFixed(2)} (${profitRate.toFixed(2)}%)
-        </p>
-        <p class="note">已包含买卖双边佣金(最低RM3/笔)、清算费及${isStock ? '印花税' : 'ETF印花税豁免'}。</p>
+
+      output = `
+        买入成本: RM ${totalCost.toFixed(2)}<br>
+        卖出净得: RM ${netProceeds.toFixed(2)}<br>
+        最终盈亏: <span class="${profit>=0?'highlight':'negative'}">RM ${profit.toFixed(2)}</span><br>
+        盈利率: ${(profit/totalCost*100).toFixed(2)}%
       `;
-      
-      document.getElementById('my-profitResult').innerHTML = resultHTML;
-      document.getElementById('my-profitResult').style.display = 'block';
     }
-  </script>
+
+    resBox.innerHTML = output;
+    resBox.style.display = 'block';
+  }
+</script>
+
 </body>
 </html>
